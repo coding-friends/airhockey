@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="bufc.js"></script>
+  </head>
+  <body>
+    <script>
+      const { Model, T } = bufc;
+      const inputModel = new Model({
+        x: T.uint16,
+        y: T.uint16,
+      });
+      const outputModel = new Model({
+        playerAX: T.uint16,
+        playerAY: T.uint16,
+        playerBX: T.uint16,
+        playerBY: T.uint16,
+        ballX: T.uint16,
+        ballY: T.uint16,
+        role: T.uint8, // 0: playerA, 1: playerB, 2: visitor
+        message: T.string(T.uint8, T.uint8),
+      });
+      let socket = new WebSocket("ws://localhost:8080/");
+      socket.onopen = (e) => {
+        console.log("connected to server");
+      };
+      socket.onmessage = (e) => {
+        (async () => {
+          console.log(outputModel.parse(await e.data.arrayBuffer()));
+        })();
+      };
+      socket.onclose = (e) => {
+        console.log(e);
+      };
+    </script>
+  </body>
+</html>
