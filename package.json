@@ -1,0 +1,12 @@
+{
+  "name": "airhockey",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/coding-friends/airhockey.git",
+  "author": "James Liang <james.liang.cje@icloud.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.0.0"
+  }
+}
