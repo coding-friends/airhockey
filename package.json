@@ -1,7 +1,7 @@
 {
   "name": "airhockey",
   "version": "1.0.0",
-  "main": "server/app.js",
+  "main": "app.js",
   "repository": "https://github.com/coding-friends/airhockey.git",
   "author": "James Liang <james.liang.cje@icloud.com>",
   "license": "MIT",

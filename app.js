@@ -1,7 +1,7 @@
 "use strict";
 const path = require("path")
-
-const ROOT_DIR = path.dirname(__dirname)
+const PORT = process.env.PORT || 5000
+const ROOT_DIR = __dirname 
 
 const FPS = 30;
 const PRECISION = 100;
@@ -68,7 +68,7 @@ function ballPaddleBounce(px, py) {
   }
 }
 
-function process(delta) {
+function processDelta(delta) {
   if (game.ballX - BALLR < 0 || game.ballX + BALLR > WIDTH) {
     if (game.ballY - BALLR > CENTER - CIRCLE_R && game.ballY + BALLR < CENTER + CIRCLE_R) {
       initStates();
@@ -119,7 +119,7 @@ let lastFrame = Date.now();
 
 setInterval(() => {
   let delta = 1;
-  if (running) for (var i = 0; i < PRECISION; i++) process(delta / PRECISION);
+  if (running) for (var i = 0; i < PRECISION; i++) processDelta(delta / PRECISION);
   // sending data to all clients
   clients.forEach((s, i) => {
     game.role = i
@@ -129,7 +129,6 @@ setInterval(() => {
 }, 1000 / FPS);
 
 app.use(express.static(ROOT_DIR))
-const PORT = process.env.PORT || 5000
 http.listen(PORT, () => {
   console.log(`listening on http://localhost:${PORT}`)
 })
