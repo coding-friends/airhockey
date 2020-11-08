@@ -15,7 +15,7 @@ class Ball {
 
   display() {
     fill(30);
-    ellipse(this.position.x, this.position.y, this.radius * 2, this.radius * 2);
+    ellipse(Math.round(this.position.x), Math.round(this.position.y), this.radius * 2, this.radius * 2);
   }
 
   handleWalls() {

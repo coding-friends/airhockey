@@ -2,7 +2,7 @@ class Paddle {
   constructor(color) {
     this.position = createVector(mouseX, mouseY);
     this.velocity = createVector(0, 0);
-    this.radius = 50;
+    this.radius = 80;
     this.color = color;
   }
   update() {
@@ -12,7 +12,7 @@ class Paddle {
   }
   display() {
     fill(this.color);
-    ellipse(this.position.x, this.position.y, this.radius * 2, this.radius * 2);
+    ellipse(Math.round(this.position.x), Math.round(this.position.y), this.radius * 2, this.radius * 2);
   }
   reflect(incident, axis) {
     let d = incident;
@@ -22,19 +22,6 @@ class Paddle {
     return r;
   }
 
-  // handleCollision(ball) {
-  //   let directionVector = p5.Vector.sub(ball.position, this.position);
-  //   let distance = directionVector.mag();
-  //   if (distance - ball.radius - this.radius < 5) {
-  //     ball.velocity = this.reflect(p5.Vector.add(ball.velocity, this.velocity), directionVector);
-  //     ball.velocity.mult(directionVector.mag() + ball.velocity.mag());
-  //     ball.position = p5.Vector.add(this.position, directionVector.normalize().mult(this.radius * 1.1));
-  //     ball.position.add(ball.velocity / precision);
-  //   }
-  // }
-  decomposeVector(vector, axis) {
-    // decompose vector of balls velocity into velocity that is colliding between the two and velocity that is perpendicular, then negate the vector that is colliding between the two and add it to the perpendicular velocity
-  }
   handleCollision(ball) {
     let length = this.position.copy().sub(ball.position).mag();
     let cross = length - this.radius - ball.radius;

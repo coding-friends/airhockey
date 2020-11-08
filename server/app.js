@@ -1,23 +1,25 @@
 "use strict";
+const path = require("path")
 
-const FPS = 60;
+const ROOT_DIR = path.dirname(__dirname)
+
+const FPS = 30;
 const PRECISION = 100;
-const FRICTION = 1 - 1e-5;
+const FRICTION = 1 - 1e-4 /2;
 const WIDTH = 2000;
 const HEIGHT = 1000;
 const BALLV = 2;
 const BALLR = 20;
-const PLAYERR = 50;
+const PLAYERR = 80;
 const CIRCLE_D = HEIGHT / 3;
 const CENTER = HEIGHT / 2;
 const CIRCLE_R = CIRCLE_D / 2;
 let running = false;
+const express = require('express')
+const app = express()
+const http = require('http').createServer(app)
+const io = require("socket.io")(http)
 
-const inputModel = require("./inputModel");
-const outputModel = require("./ouputModel");
-
-const WebSocket = require("ws");
-const wss = new WebSocket.Server({ port: 8080 });
 
 function initStates() {
   game.ballX = WIDTH / 2;
@@ -88,55 +90,46 @@ function process(delta) {
   ballPaddleBounce(game.playerBX, game.playerBY);
 }
 
-wss.on("connection", (s) => {
-  clients.push(s);
-  s.last = Date.now();
-  startOrStop();
-  s.once("disconnect", () => {
+io.on("connection", (socket) => {
+  console.log("user connected")
+  clients.push(socket);
+  socket.on("disconnect", () => {
     console.log("a player disconnected");
-    clients.splice(clients.indexOf(s), 1);
+    clients.splice(clients.indexOf(socket), 1);
     startOrStop();
   });
-  s.on("message", (m) => {
-    s.last = Date.now();
-    let mousePos = inputModel.parse(m.buffer.slice(6));
-    switch (clients.indexOf(s)) {
+  socket.on("message", (m) => {
+    let mousePos = m
+    const yPos = Math.max(Math.min(mousePos.y, HEIGHT - PLAYERR), PLAYERR);
+    switch (clients.indexOf(socket)) {
       case 0:
         game.playerAX = Math.max(Math.min(mousePos.x, WIDTH / 2 - PLAYERR), PLAYERR);
-        game.playerAY = Math.max(Math.min(mousePos.y, HEIGHT - PLAYERR), PLAYERR);
+        game.playerAY = yPos
         break;
       case 1:
         game.playerBX = Math.max(Math.min(mousePos.x, WIDTH - PLAYERR), WIDTH / 2 + PLAYERR);
-        game.playerBY = Math.max(Math.min(mousePos.y, HEIGHT - PLAYERR), PLAYERR);
+        game.playerBY = yPos;
         break;
     }
   });
+  startOrStop();
 });
 
-setInterval(() => {
-  clients = clients.filter((v) => v.last + 1000 > Date.now());
-}, 1000);
-
 let lastFrame = Date.now();
+
 setInterval(() => {
   let delta = 1;
   if (running) for (var i = 0; i < PRECISION; i++) process(delta / PRECISION);
   // sending data to all clients
   clients.forEach((s, i) => {
-    switch (i) {
-      case 0:
-        game.role = 0;
-        s.send(outputModel.serialize(game));
-        break;
-      case 1:
-        game.role = 1;
-        s.send(outputModel.serialize(game));
-        break;
-      default:
-        game.role = 2;
-        s.send(outputModel.serialize(game));
-        break;
-    }
+    game.role = i
+    s.emit("message", game)
   });
   lastFrame = Date.now();
 }, 1000 / FPS);
+
+app.use(express.static(ROOT_DIR))
+const PORT = process.env.PORT || 5000
+http.listen(PORT, () => {
+  console.log(`listening on http://localhost:${PORT}`)
+})
